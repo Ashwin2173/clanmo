@@ -5,13 +5,13 @@
 #include <stdlib.h>
 
 #include "vm.h"
+#include "error.h"
 
-VMContext get_context(FILE *file);
+VM *load_byte_code(FILE *file);
 
 static void next_bytes(FILE *fp, void *buffer, const size_t size) {
     if (fread(buffer, 1, size, fp) != size) {
-        fprintf(stderr, "Unexpected end of file.\n");
-        exit(EXIT_FAILURE);
+        Fault(INIT_FAULT, "Unexpected end of file");
     }
 }
 
@@ -36,8 +36,7 @@ static uint32_t next_int4(FILE *fp) {
 static double next_float(FILE *fp) {
     double value;
     if (fread(&value, sizeof(double), 1, fp) != 1) {
-        fprintf(stderr, "Unexpected end of file.\n");
-        exit(EXIT_FAILURE);
+        Fault(INIT_FAULT, "Unexpected end of file");
     }
     return value;
 }
@@ -45,8 +44,7 @@ static double next_float(FILE *fp) {
 static char *next_str(FILE *fp, const size_t size) {
     char *str = malloc(size + 1);
     if (!str) {
-        fprintf(stderr, "Out of memory.\n");
-        exit(EXIT_FAILURE);
+        Fault(INIT_FAULT, "Out of memory");
     }
     next_bytes(fp, str, size);
     str[size] = '\0';

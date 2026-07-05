@@ -1,8 +1,0 @@
-NATIVE print
-
-main 0 {
-    PUSH print
-    PUSH "Hello, World"
-    CALL 1
-    RETURN
-}

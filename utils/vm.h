@@ -53,6 +53,8 @@
 #define BIN_OP_AND 12
 #define BIN_OP_OR  13
 
+void vm_run(FILE *file);
+
 struct Value;
 typedef struct Value (*NativeFunction)(int argc, struct Value *args);
 
@@ -87,8 +89,23 @@ typedef struct Value {
 } Value;
 
 typedef struct {
+    Function *function;
+    long inst_pointer;
+    long base_pointer;
+    long mem_base_pointer;
+} Frame;
+
+typedef struct {
     Value *symbol_table;
-} VMContext;
+
+    Value *stack;
+    int stack_pointer;
+
+    Frame *frames;
+    int frame_pointer;
+
+    int main_fn_pointer;
+} VM;
 
 static Value make_none(void) {
     return (Value){ .type = LM_NONE };

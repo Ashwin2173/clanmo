@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utils/parser.h"
 #include "utils/vm.h"
 
 void print_usage() {
@@ -19,7 +18,7 @@ int main(const int argc, const char *argv[]) {
         printf("[ERROR] Could not open file '%s'\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-    const VMContext context = get_context(file);
+    vm_run(file);
     fclose(file);
     return 0;
 }
