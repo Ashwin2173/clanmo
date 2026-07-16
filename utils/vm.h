@@ -10,9 +10,8 @@
 #define LM_FUNCTION 4
 #define LM_NONE 5
 #define LM_BOOLEAN 6
-#define LM_OBJECT 7
-#define LM_LIST 8
-#define LM_FLOAT 9
+#define LM_BUILT_IN_FUNCTION 7
+#define LM_FLOAT 8
 
 #define OP_PUSH 1
 #define OP_POP 2

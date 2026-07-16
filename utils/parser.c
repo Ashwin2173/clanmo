@@ -17,7 +17,7 @@ void validate_header(FILE *file) {
     }
 }
 
-void check_native(Function *function) {
+void load_native_function(Function *function) {
     const char *fn_name = function->name;
     if (strcmp(fn_name, "print") == 0) {
         function->is_native = true;
@@ -46,7 +46,11 @@ Value *read_symbols(FILE *file, VM *vm) {
             if (strcmp(fn->name, INIT_POINT) == 0) {
                 vm->main_fn_pointer = i;
             }
-            check_native(fn);
+            symbols[i] = make_function(fn);
+        } else if (format == LM_BUILT_IN_FUNCTION) {
+            Function *fn = malloc(sizeof(Function));
+            fn->name = next_str(file, next_int4(file));
+            load_native_function(fn);
             symbols[i] = make_function(fn);
         } else if (format == LM_NONE) {
             symbols[i] = make_none();
