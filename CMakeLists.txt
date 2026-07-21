@@ -9,4 +9,6 @@ add_executable(clanmo lm.c
         utils/parser.h
         utils/vm.h
         utils/native_functions.c
-        utils/native_functions.h)
+        utils/native_functions.h
+        utils/error.h
+)

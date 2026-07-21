@@ -1,0 +1,5 @@
+function main() {
+    print("Enter input: ");
+    print("Your input is ", input());
+    return;
+}

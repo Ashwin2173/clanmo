@@ -10,9 +10,8 @@
 #define LM_FUNCTION 4
 #define LM_NONE 5
 #define LM_BOOLEAN 6
-#define LM_OBJECT 7
-#define LM_LIST 8
-#define LM_FLOAT 9
+#define LM_BUILT_IN_FUNCTION 7
+#define LM_FLOAT 8
 
 #define OP_PUSH 1
 #define OP_POP 2
@@ -53,6 +52,8 @@
 #define BIN_OP_AND 12
 #define BIN_OP_OR  13
 
+void vm_run(FILE *file);
+
 struct Value;
 typedef struct Value (*NativeFunction)(int argc, struct Value *args);
 
@@ -87,8 +88,23 @@ typedef struct Value {
 } Value;
 
 typedef struct {
+    Function *function;
+    long inst_pointer;
+    long base_pointer;
+    long mem_base_pointer;
+} Frame;
+
+typedef struct {
     Value *symbol_table;
-} VMContext;
+
+    Value *stack;
+    int stack_pointer;
+
+    Frame *frames;
+    int frame_pointer;
+
+    int main_fn_pointer;
+} VM;
 
 static Value make_none(void) {
     return (Value){ .type = LM_NONE };

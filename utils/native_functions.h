@@ -4,5 +4,6 @@
 #include "vm.h"
 
 Value native_print(int argc, Value* args);
+Value native_input(int argc, Value* args);
 
 #endif

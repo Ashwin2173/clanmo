@@ -9,22 +9,26 @@
 #define MAJOR 1
 #define MINOR 0
 
+#define INIT_POINT "main"
+
 void validate_header(FILE *file) {
     if (next_int4(file) != MAGIC || next_int2(file) != MAJOR || next_int2(file) != MINOR) {
-        printf("[ERROR] Incorrect file header\n");
-        exit(EXIT_FAILURE);
+        Fault(INIT_FAULT, "Incorrect file header");
     }
 }
 
-void check_native(Function *function) {
+void load_native_function(Function *function) {
     const char *fn_name = function->name;
     if (strcmp(fn_name, "print") == 0) {
         function->is_native = true;
         function->native_function = native_print;
+    } else if (strcmp(fn_name, "input") == 0) {
+        function->is_native = true;
+        function->native_function = native_input;
     }
 }
 
-Value *read_symbols(FILE *file) {
+Value *read_symbols(FILE *file, VM *vm) {
     const uint16_t symbol_count = next_int2(file);
     Value *symbols = malloc(sizeof(Value) * symbol_count);
     for (uint16_t i = 0; i < symbol_count; i++) {
@@ -39,11 +43,20 @@ Value *read_symbols(FILE *file) {
         } else if (format == LM_FUNCTION) {
             Function *fn = malloc(sizeof(Function));
             fn->name = next_str(file, next_int4(file));
-            check_native(fn);
+            if (strcmp(fn->name, INIT_POINT) == 0) {
+                vm->main_fn_pointer = i;
+            }
             symbols[i] = make_function(fn);
+        } else if (format == LM_BUILT_IN_FUNCTION) {
+            Function *fn = malloc(sizeof(Function));
+            fn->name = next_str(file, next_int4(file));
+            load_native_function(fn);
+            symbols[i] = make_function(fn);
+        } else if (format == LM_NONE) {
+            symbols[i] = make_none();
         } else {
-            printf("[ERROR] Unhandled DataType: %d\n", format);
-            exit(EXIT_FAILURE);
+            printf("%d\n", format);
+            Fault(INIT_FAULT, "Unhandled DataType");
         }
     }
     return symbols;
@@ -52,8 +65,7 @@ Value *read_symbols(FILE *file) {
 void read_struct(FILE *file) {
     const uint16_t struct_count = next_int2(file);
     if (struct_count != 0) {
-        printf("[ERROR] Struct not supported yet" );
-        exit(EXIT_FAILURE);
+        Fault(INIT_FAULT, "Struct not supported yet");
     }
 }
 
@@ -82,12 +94,12 @@ void read_functions(FILE *file, const Value *symbol_table) {
     }
 }
 
-VMContext get_context(FILE *file) {
+VM *load_byte_code(FILE *file) {
+    VM *vm = malloc(sizeof(VM));
     validate_header(file);
-    Value *symbol_table = read_symbols(file);
+    vm->main_fn_pointer = -1;
+    vm->symbol_table = read_symbols(file, vm);
     read_struct(file);
-    read_functions(file, symbol_table);
-    return (VMContext) {
-        .symbol_table = symbol_table,
-    };
+    read_functions(file, vm->symbol_table);
+    return vm;
 }
