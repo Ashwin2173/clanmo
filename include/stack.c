@@ -22,9 +22,8 @@ void stack_push(LM_Stack *stack, const LM_Value value) {
 }
 
 LM_Value stack_peek_n(const LM_Stack *stack, const int offset) {
-    if (stack->length + offset == 0) raise_stack_underflow();
-    if (stack->length + offset > stack->capacity) raise_stack_overflow();
-    return stack->values[stack->length - offset - 1];
+    if (offset >= stack->length) raise_stack_underflow();
+    return stack->values[stack->length - 1 - offset];
 }
 
 LM_Value stack_peek(const LM_Stack *stack) {
@@ -33,8 +32,7 @@ LM_Value stack_peek(const LM_Stack *stack) {
 }
 
 void stack_pop_n(LM_Stack *stack, const int offset) {
-    if (stack->length + offset == 0) raise_stack_underflow();
-    if (stack->length + offset > stack->capacity) raise_stack_overflow();
+    if (offset > stack->length) raise_stack_underflow();
     stack->length -= offset;
 }
 

@@ -49,7 +49,6 @@ void vm_run(FILE *file) {
                 Fault(CORE_FAULT, "Unhandled OpCode");
             break;
         }
-        frame_peek(vm->frames)->inst_ptr += 1;
     }
 }
 
@@ -68,8 +67,8 @@ void load_main(const LM_VM *vm, const Program *program) {
     load_function(vm, &program->symbol_table[program->entry_point]);
 }
 
-void op_call(const LM_VM *vm, LM_OpCode opcode) {
-    const LM_Function* fn = stack_peek_n(vm->stack, -opcode.value).as.function;
+void op_call(const LM_VM *vm, const LM_OpCode opcode) {
+    const LM_Function* fn = stack_peek_n(vm->stack, opcode.value).as.function;
     if (fn->is_native) {
         LM_Value args = vm->stack->values[vm->stack->length - opcode.value];
         const LM_Value value = fn->native_function(opcode.value, &args);

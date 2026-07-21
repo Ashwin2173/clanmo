@@ -24,10 +24,11 @@ LM_Frame *frame_peek(const LM_FrameStack *stack) {
     return &stack->values[stack->length - 1];
 }
 
-LM_Frame frame_pop(const LM_FrameStack *stack) {
+LM_Frame frame_pop(LM_FrameStack *stack) {
     if (stack->length == 0) raise_frame_underflow();
-    return stack->values[stack->length - 1];
+    return stack->values[--stack->length];
 }
+
 void frames_gc(LM_FrameStack *stack) {
     free(stack->values);
     stack->values = NULL;

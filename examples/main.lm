@@ -1,4 +1,5 @@
 function main() {
-    print("Hello, World");
+    print("Enter input: ");
+    print("your input is", input());
     return;
 }
