@@ -23,7 +23,7 @@ typedef struct {
 } LM_VM;
 
 void frame_push(LM_FrameStack *stack, LM_Frame value);
-LM_Frame frame_peek(const LM_FrameStack *stack);
+LM_Frame *frame_peek(const LM_FrameStack *stack);
 LM_Frame frame_pop(const LM_FrameStack *stack);
 void frames_gc(LM_FrameStack *stack);
 

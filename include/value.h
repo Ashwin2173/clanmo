@@ -5,14 +5,14 @@
 #include <stdint.h>
 
 enum LM_DataType {
-    LM_INTEGER,
-    LM_STRING,
-    LM_IDENTIFIER,
-    LM_FUNCTION,
-    LM_NONE,
-    LM_BUILT_IN_FUNCTION,
-    LM_BOOLEAN,
-    LM_FLOAT
+    LM_INTEGER = 1,
+    LM_STRING = 2,
+    LM_IDENTIFIER = 3,
+    LM_FUNCTION = 4,
+    LM_NONE = 5,
+    LM_BOOLEAN = 6,
+    LM_BUILT_IN_FUNCTION = 7,
+    LM_FLOAT = 8
 };
 
 enum LM_OPCode {

@@ -29,8 +29,8 @@ void vm_run(FILE *file) {
     LM_VM *vm = malloc(sizeof(LM_VM));
     init_vm(vm, program);
     while (vm->frames->length != 0) {
-        LM_Frame frame = frame_peek(vm->frames);
-        const LM_OpCode inst = frame.function->body[frame.inst_ptr++];
+        LM_Frame *frame = frame_peek(vm->frames);
+        const LM_OpCode inst = frame->function->body[frame->inst_ptr++];
         switch (inst.op_code) {
             case OP_PUSH:
                 stack_push(vm->stack, program->symbol_table[inst.value]);
@@ -49,6 +49,7 @@ void vm_run(FILE *file) {
                 Fault(CORE_FAULT, "Unhandled OpCode");
             break;
         }
+        frame_peek(vm->frames)->inst_ptr += 1;
     }
 }
 
@@ -61,7 +62,7 @@ void load_function(const LM_VM *vm, const LM_Value *value) {
 }
 
 void load_main(const LM_VM *vm, const Program *program) {
-    if (program->entry_point == 0) {
+    if (program->entry_point == -1) {
         Fault(NO_MAIN, "No 'main' function defined");
     }
     load_function(vm, &program->symbol_table[program->entry_point]);
