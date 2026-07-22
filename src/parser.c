@@ -9,7 +9,7 @@
 #define MAJOR 1
 #define MINOR 0
 
-#define INIT_POINT "main"
+static const char INIT_POINT[] = "main";
 
 void validate_header(FILE *file) {
     if (next_int4(file) != MAGIC || next_int2(file) != MAJOR || next_int2(file) != MINOR) {
@@ -28,27 +28,28 @@ void load_native_function(LM_Function *function) {
     }
 }
 
-LM_Value *read_symbols(FILE *file, Program *program) {
+LM_Value *parse_symbols(FILE *file, Program *program) {
     const uint16_t symbol_count = next_int2(file);
     LM_Value *symbols = malloc(sizeof(LM_Value) * symbol_count);
+    program->symbol_count = symbol_count;
     for (uint16_t i = 0; i < symbol_count; i++) {
         const uint8_t format = next_byte(file);
         if (format == LM_INTEGER) {
             symbols[i] = make_int(next_int4(file));
         } else if (format == LM_STRING) {
-            LM_String *s = malloc(sizeof(LM_String));
+            LM_String *s = malloc(sizeof(*s));
             s->length = next_int4(file);
             s->string = next_str(file, s -> length);
             symbols[i] = make_string(s);
         } else if (format == LM_FUNCTION) {
-            LM_Function *fn = malloc(sizeof(LM_Function));
+            LM_Function *fn = malloc(sizeof(*fn));
             fn->name = next_str(file, next_int4(file));
             if (strcmp(fn->name, INIT_POINT) == 0) {
                 program->entry_point = i;
             }
             symbols[i] = make_function(fn);
         } else if (format == LM_BUILT_IN_FUNCTION) {
-            LM_Function *fn = malloc(sizeof(LM_Function));
+            LM_Function *fn = malloc(sizeof(*fn));
             fn->name = next_str(file, next_int4(file));
             load_native_function(fn);
             symbols[i] = make_function(fn);
@@ -62,27 +63,25 @@ LM_Value *read_symbols(FILE *file, Program *program) {
     return symbols;
 }
 
-void read_struct(FILE *file) {
+void parse_struct(FILE *file) {
     const uint16_t struct_count = next_int2(file);
     if (struct_count != 0) {
         Fault(INIT_FAULT, "Struct not supported yet");
     }
 }
 
-LM_OpCode *read_function_body(FILE *file) {
+LM_OpCode *parse_function_body(FILE *file) {
     const uint32_t body_count = next_int4(file); // lol
     LM_OpCode *body = malloc(sizeof(LM_OpCode) * body_count);
     for (uint32_t i = 0; i < body_count; i++) {
-        LM_OpCode *op = malloc(sizeof(LM_OpCode));
-        op->op_code = next_byte(file);
-        op->value = next_int2(file);
-        body[i] = *op;
+        body[i].op_code = next_byte(file);
+        body[i].value = next_int2(file);
     }
     return body;
 }
 
-void read_functions(FILE *file, const LM_Value *symbol_table) {
-    if (symbol_table == NULL) { return; } // fix this later
+void parse_functions(FILE *file, const LM_Value *symbol_table) {
+    if (symbol_table == NULL) Fault(INIT_FAULT, "Symbol table missing");
     const uint16_t function_count = next_int2(file);
     for (uint16_t i = 0; i < function_count; i++) {
         const uint16_t fn_pointer = next_int2(file);
@@ -91,7 +90,7 @@ void read_functions(FILE *file, const LM_Value *symbol_table) {
         fn->local_count = next_int4(file);
         fn->is_native = false;
         next_int2(file);
-        fn->body = read_function_body(file);
+        fn->body = parse_function_body(file);
     }
 }
 
@@ -99,8 +98,8 @@ Program *parse_byte_code(FILE *file) {
     Program *program = malloc(sizeof(Program));
     validate_header(file);
     program->entry_point = -1;
-    program->symbol_table = read_symbols(file, program);
-    read_struct(file);
-    read_functions(file, program->symbol_table);
+    program->symbol_table = parse_symbols(file, program);
+    parse_struct(file);
+    parse_functions(file, program->symbol_table);
     return program;
 }

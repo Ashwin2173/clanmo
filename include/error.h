@@ -11,6 +11,7 @@ enum FaultType {
     STACK_UNDERFLOW,
 };
 
+[[noreturn]]
 static void Fault(const enum FaultType ft, char *message) {
     fprintf(stderr, "\nFaulted with error code %d:\n%s\n", ft, message);
     exit(EXIT_FAILURE);

@@ -5,7 +5,10 @@
 
 typedef struct {
     LM_Value *symbol_table;
-    int16_t entry_point;
+    uint16_t symbol_count;
+    int32_t entry_point;
 } Program;
+
+void program_gc(Program *program);
 
 #endif

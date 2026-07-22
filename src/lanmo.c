@@ -7,23 +7,19 @@
 #include "../include/program.h"
 
 void op_call(LM_VM *vm, LM_OpCode opcode);
-void op_ret (LM_VM *vm, LM_OpCode opcode);
+void op_ret (LM_VM *vm);
 
 void load_main(LM_VM *vm, const Program *program);
-void load_function(LM_VM *vm, int args);
+void call_function(LM_VM *vm, size_t args);
 
 void init_vm(LM_VM *vm, const Program *program) {
-    vm->stack.values = NULL;
-    vm->stack.length = 0;
-    vm->stack.capacity = 0;
-    vm->frames.values = NULL;
-    vm->frames.length = 0;
-    vm->frames.capacity = 0;
+    stack_init(&vm->stack);
+    frame_init(&vm->frames);
     load_main(vm, program);
 }
 
 void vm_run(FILE *file) {
-    const Program *program = parse_byte_code(file);
+    Program *program = parse_byte_code(file);
     LM_VM vm;
     init_vm(&vm, program);
     while (vm.frames.length != 0) {
@@ -40,7 +36,7 @@ void vm_run(FILE *file) {
                 op_call(&vm, inst);
                 break;
             case OP_RET :
-                op_ret(&vm, inst);
+                op_ret(&vm);
                 break;
             default:
                 printf("%d", inst.op_code);
@@ -48,10 +44,13 @@ void vm_run(FILE *file) {
             break;
         }
     }
+    stack_gc(&vm.stack);
+    frames_gc(&vm.frames);
+    program_gc(program);
 }
 
-void load_function(LM_VM *vm, const int args) {
-    const LM_Value value = stack_peek_n(&vm->stack, vm->stack.length - args - 1);
+void call_function(LM_VM *vm, const size_t args) {
+    const LM_Value value = vm->stack.values[vm->stack.length - args - 1];
     LM_Frame frame;
     frame.function = value.as.function;
     frame.inst_ptr = 0;
@@ -64,7 +63,7 @@ void load_main(LM_VM *vm, const Program *program) {
         Fault(NO_MAIN, "No 'main' function defined");
     }
     stack_push(&vm->stack, program->symbol_table[program->entry_point]);
-    load_function(vm, 0);
+    call_function(vm, 0);
 }
 
 void op_call(LM_VM *vm, const LM_OpCode opcode) {
@@ -76,11 +75,12 @@ void op_call(LM_VM *vm, const LM_OpCode opcode) {
         stack_push(&vm->stack, value);
         return;
     }
-    load_function(vm, opcode.value);
+    call_function(vm, opcode.value);
 }
 
-void op_ret(LM_VM *vm, const LM_OpCode opcode){
+void op_ret(LM_VM *vm){
     const LM_Value value = stack_pop(&vm->stack);
-    stack_pop_n(&vm->stack, frame_pop(&vm->frames).base_ptr);
+    const LM_Frame frame = frame_pop(&vm->frames);
+    stack_pop_n(&vm->stack, frame.base_ptr);
     stack_push(&vm->stack, value);
 }

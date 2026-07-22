@@ -10,7 +10,7 @@
 
 Program *parse_byte_code(FILE *file);
 
-static void next_bytes(FILE *fp, void *buffer, const size_t size) {
+static inline void next_bytes(FILE *fp, void *buffer, const size_t size) {
     if (fread(buffer, 1, size, fp) != size) {
         Fault(INIT_FAULT, "Unexpected end of file");
     }

@@ -3,6 +3,12 @@
 
 void raise_frame_underflow();
 
+void frame_init(LM_FrameStack *frame) {
+    frame->values = NULL;
+    frame->length = 0;
+    frame->capacity = 0;
+}
+
 void frame_push(LM_FrameStack *stack, const LM_Frame value) {
     if (stack->length >= stack->capacity) {
         if (stack->capacity == 0) {

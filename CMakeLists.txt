@@ -17,4 +17,5 @@ add_executable(clanmo main.c
         src/lanmo.h
         include/vm.c
         src/parser.c
+        include/program.c
 )

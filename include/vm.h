@@ -21,6 +21,7 @@ typedef struct {
     LM_FrameStack frames;
 } LM_VM;
 
+void frame_init(LM_FrameStack *frame);
 void frame_push(LM_FrameStack *stack, LM_Frame value);
 LM_Frame *frame_peek(const LM_FrameStack *stack);
 LM_Frame frame_pop(LM_FrameStack *stack);

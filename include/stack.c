@@ -4,8 +4,14 @@
 #include "stack.h"
 #include "error.h"
 
-void raise_stack_underflow();
-void raise_stack_overflow();
+static void raise_stack_underflow(void);
+static void raise_stack_overflow(void);
+
+void stack_init(LM_Stack *stack) {
+    stack->values = NULL;
+    stack->length = 0;
+    stack->capacity = 0;
+}
 
 void stack_push(LM_Stack *stack, const LM_Value value) {
     if (stack->length >= stack->capacity) {
@@ -21,7 +27,7 @@ void stack_push(LM_Stack *stack, const LM_Value value) {
     stack->values[stack->length++] = value;
 }
 
-LM_Value stack_peek_n(const LM_Stack *stack, const int offset) {
+LM_Value stack_peek_n(const LM_Stack *stack, const size_t offset) {
     if (offset >= stack->length) raise_stack_underflow();
     return stack->values[stack->length - 1 - offset];
 }
@@ -31,9 +37,9 @@ LM_Value stack_peek(const LM_Stack *stack) {
     return stack->values[stack->length - 1];
 }
 
-void stack_pop_n(LM_Stack *stack, const int offset) {
-    if (offset > stack->length) raise_stack_underflow();
-    stack->length -= offset;
+void stack_pop_n(LM_Stack *stack, const size_t count) {
+    if (count > stack->length) raise_stack_underflow();
+    stack->length -= count;
 }
 
 LM_Value stack_pop(LM_Stack *stack) {
@@ -48,10 +54,10 @@ void stack_gc(LM_Stack *stack) {
     stack->length = 0;
 }
 
-void raise_stack_overflow() {
+static void raise_stack_overflow(void) {
     Fault(STACK_OVERFLOW, "Core Stack Overflow");
 }
 
-void raise_stack_underflow() {
+static void raise_stack_underflow(void) {
     Fault(STACK_UNDERFLOW, "Core Stack Underflow");
 }
