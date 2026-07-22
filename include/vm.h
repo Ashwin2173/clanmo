@@ -17,9 +17,8 @@ typedef struct {
 } LM_FrameStack;
 
 typedef struct {
-    LM_Value *symbol_table;
-    LM_Stack *stack;
-    LM_FrameStack *frames;
+    LM_Stack stack;
+    LM_FrameStack frames;
 } LM_VM;
 
 void frame_push(LM_FrameStack *stack, LM_Frame value);
