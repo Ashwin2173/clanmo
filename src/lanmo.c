@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "native_functions.h"
 #include "../include/vm.h"
 #include "../include/value.h"
 #include "../include/parser.h"
 #include "../include/program.h"
 
 void op_call(LM_VM *vm, LM_OpCode opcode);
-void op_store(LM_VM *vm, LM_OpCode op_code);
-void op_load(LM_VM *vm, LM_OpCode op_code);
+void op_store(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
+void op_load(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
 void op_ret (LM_VM *vm);
 
 void load_main(LM_VM *vm, const Program *program);
@@ -33,8 +34,8 @@ void vm_run(FILE *file) {
                 stack_push(&vm.stack, program->symbol_table[inst.value]);
                 break;
             case OP_POP: stack_pop(&vm.stack); break;
-            case OP_STORE: op_store(&vm, inst); break;
-            case OP_LOAD: op_load(&vm, inst); break;
+            case OP_STORE: op_store(&vm, frame, inst); break;
+            case OP_LOAD: op_load(&vm, frame, inst); break;
             case OP_CALL: op_call(&vm, inst); break;
             case OP_RET : op_ret(&vm); break;
             default:
@@ -65,13 +66,15 @@ void load_main(LM_VM *vm, const Program *program) {
     call_function(vm, 0);
 }
 
-void op_store(LM_VM *vm, const LM_OpCode op_code) {
+void op_store(LM_VM *vm, const LM_Frame *frame, const LM_OpCode op_code) {
     const LM_Value value = stack_peek(&vm->stack);
-    memory_write(&vm->memory, op_code.value, value);
+    const size_t location = frame->mem_ptr + op_code.value;
+    memory_write(&vm->memory, location, value);
 }
 
-void op_load(LM_VM *vm, const LM_OpCode op_code) {
-    const LM_Value value = memory_read(&vm->memory, op_code.value);
+void op_load(LM_VM *vm, const LM_Frame *frame, const LM_OpCode op_code) {
+    const size_t location = frame->mem_ptr + op_code.value;
+    const LM_Value value = memory_read(&vm->memory, location);
     stack_push(&vm->stack, value);
 }
 
@@ -91,6 +94,7 @@ void op_ret(LM_VM *vm){
     const LM_Value value = stack_pop(&vm->stack);
     const LM_Frame frame = frame_pop(&vm->frames);
     stack_pop_n(&vm->stack, frame.base_ptr);
+    stack_pop(&vm->stack);
     stack_push(&vm->stack, value);
     vm->memory.length = frame.mem_ptr;
 }

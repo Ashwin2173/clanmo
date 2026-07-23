@@ -5,7 +5,7 @@
 
 #include "../include/value.h"
 
-LM_Value native_print(const int argc, const LM_Value* argv) {
+LM_Value native_print(const size_t argc, const LM_Value* argv) {
     for (int i = 0; i < argc; ++i) {
         LM_Value value = argv[i];
         switch (value.type) {
@@ -22,7 +22,7 @@ LM_Value native_print(const int argc, const LM_Value* argv) {
     return make_none();
 }
 
-LM_Value native_input(const int argc, LM_Value* argv) {
+LM_Value native_input(const size_t argc, LM_Value* argv) {
     char input[1024];
     if (fgets(input, sizeof(input), stdin) == NULL) {
         return make_none();

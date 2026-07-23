@@ -53,6 +53,7 @@ LM_Value *parse_symbols(FILE *file, Program *program) {
         } else if (format == LM_BUILT_IN_FUNCTION) {
             LM_Function *fn = malloc(sizeof(*fn));
             fn->name = next_str(file, next_int4(file));
+            fn->body = NULL;
             load_native_function(fn);
             symbols[i] = make_function(fn);
         } else if (format == LM_NONE) {

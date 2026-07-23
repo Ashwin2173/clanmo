@@ -3,7 +3,7 @@
 
 #include "../include/value.h"
 
-LM_Value native_print(int argc, LM_Value* args);
-LM_Value native_input(int argc, LM_Value* args);
+LM_Value native_print(size_t argc, LM_Value* args);
+LM_Value native_input(size_t argc, LM_Value* args);
 
 #endif

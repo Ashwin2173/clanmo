@@ -9,7 +9,7 @@ void memory_init(LM_Memory *memory) {
 }
 
 void memory_write(LM_Memory *memory, const size_t location, const LM_Value value) {
-    if (memory->length >= memory->capacity) {
+    if (location >= memory->capacity) {
         if (memory->capacity == 0) {
             memory->capacity = INIT_MEMORY_SIZE;
         } else {
@@ -19,7 +19,7 @@ void memory_write(LM_Memory *memory, const size_t location, const LM_Value value
         memory->values = new_values;
     }
     memory->values[location] = value;
-    memory->length++;
+    if (location >= memory->length) memory->length = location + 1;
 }
 
 LM_Value memory_read(const LM_Memory *memory, const size_t location) {

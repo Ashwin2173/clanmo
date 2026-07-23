@@ -11,14 +11,12 @@ void program_gc(Program *program) {
                 free(value->as.string->string);
                 free(value->as.string);
                 break;
-            case LM_INTEGER:
-                free(value);
-                break;
             case LM_FUNCTION:
                 free(value->as.function->name);
                 free(value->as.function->body);
                 free(value->as.function);
                 break;
+            case LM_INTEGER:
             case LM_NONE:
                 break;
             default:
