@@ -9,6 +9,7 @@ typedef struct {
     LM_Function *function;
     uint64_t inst_ptr;
     uint64_t base_ptr;
+    uint64_t mem_ptr;
 } LM_Frame;
 
 typedef struct {

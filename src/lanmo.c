@@ -53,6 +53,7 @@ void call_function(LM_VM *vm, const size_t args) {
     frame.function = value.as.function;
     frame.inst_ptr = 0;
     frame.base_ptr = vm->stack.length - args - 1;
+    frame.mem_ptr = vm->memory.length;
     frame_push(&vm->frames, frame);
 }
 
@@ -65,7 +66,7 @@ void load_main(LM_VM *vm, const Program *program) {
 }
 
 void op_store(LM_VM *vm, const LM_OpCode op_code) {
-    const LM_Value value = stack_pop(&vm->stack);
+    const LM_Value value = stack_peek(&vm->stack);
     memory_write(&vm->memory, op_code.value, value);
 }
 
@@ -91,4 +92,5 @@ void op_ret(LM_VM *vm){
     const LM_Frame frame = frame_pop(&vm->frames);
     stack_pop_n(&vm->stack, frame.base_ptr);
     stack_push(&vm->stack, value);
+    vm->memory.length = frame.mem_ptr;
 }
