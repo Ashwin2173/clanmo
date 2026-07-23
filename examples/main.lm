@@ -1,9 +1,5 @@
 function main() {
-    print(print_hello());
-    return;
-}
-
-function print_hello() {
-    print("Hello");
-    return "Hello - return value";
+    print(print);
+    print(main);
+    return 0;
 }
