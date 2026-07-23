@@ -5,11 +5,14 @@
 
 void program_gc(Program *program) {
     for (size_t i = 0; i < program->symbol_count; i++) {
-        const LM_Value *value = &program->symbol_table[i];
+        LM_Value *value = &program->symbol_table[i];
         switch (value->type) {
             case LM_STRING:
                 free(value->as.string->string);
                 free(value->as.string);
+                break;
+            case LM_INTEGER:
+                free(value);
                 break;
             case LM_FUNCTION:
                 free(value->as.function->name);

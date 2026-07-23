@@ -7,6 +7,8 @@
 #include "../include/program.h"
 
 void op_call(LM_VM *vm, LM_OpCode opcode);
+void op_store(LM_VM *vm, LM_OpCode op_code);
+void op_load(LM_VM *vm, LM_OpCode op_code);
 void op_ret (LM_VM *vm);
 
 void load_main(LM_VM *vm, const Program *program);
@@ -15,6 +17,7 @@ void call_function(LM_VM *vm, size_t args);
 void init_vm(LM_VM *vm, const Program *program) {
     stack_init(&vm->stack);
     frame_init(&vm->frames);
+    memory_init(&vm->memory);
     load_main(vm, program);
 }
 
@@ -29,19 +32,14 @@ void vm_run(FILE *file) {
             case OP_PUSH:
                 stack_push(&vm.stack, program->symbol_table[inst.value]);
                 break;
-            case OP_POP:
-                stack_pop(&vm.stack);
-                break;
-            case OP_CALL:
-                op_call(&vm, inst);
-                break;
-            case OP_RET :
-                op_ret(&vm);
-                break;
+            case OP_POP: stack_pop(&vm.stack); break;
+            case OP_STORE: op_store(&vm, inst); break;
+            case OP_LOAD: op_load(&vm, inst); break;
+            case OP_CALL: op_call(&vm, inst); break;
+            case OP_RET : op_ret(&vm); break;
             default:
                 printf("%d", inst.op_code);
                 Fault(CORE_FAULT, "Unhandled OpCode");
-            break;
         }
     }
     stack_gc(&vm.stack);
@@ -64,6 +62,16 @@ void load_main(LM_VM *vm, const Program *program) {
     }
     stack_push(&vm->stack, program->symbol_table[program->entry_point]);
     call_function(vm, 0);
+}
+
+void op_store(LM_VM *vm, const LM_OpCode op_code) {
+    const LM_Value value = stack_pop(&vm->stack);
+    memory_write(&vm->memory, op_code.value, value);
+}
+
+void op_load(LM_VM *vm, const LM_OpCode op_code) {
+    const LM_Value value = memory_read(&vm->memory, op_code.value);
+    stack_push(&vm->stack, value);
 }
 
 void op_call(LM_VM *vm, const LM_OpCode opcode) {

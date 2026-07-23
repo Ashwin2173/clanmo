@@ -17,7 +17,7 @@ static inline void next_bytes(FILE *fp, void *buffer, const size_t size) {
 }
 
 static uint8_t next_byte(FILE *fp) {
-    char value;
+    uint8_t value = 0;
     next_bytes(fp, &value, sizeof(char));
     return value;
 }
@@ -29,7 +29,7 @@ static uint16_t next_int2(FILE *fp) {
 }
 
 static uint32_t next_int4(FILE *fp) {
-    long value = 0;
+    uint32_t value = 0;
     next_bytes(fp, &value, sizeof(uint32_t));
     return value;
 }

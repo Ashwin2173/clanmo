@@ -1,6 +1,7 @@
 #ifndef CLANMO_VM_H
 #define CLANMO_VM_H
 
+#include "memory.h"
 #include "value.h"
 #include "stack.h"
 
@@ -19,6 +20,7 @@ typedef struct {
 typedef struct {
     LM_Stack stack;
     LM_FrameStack frames;
+    LM_Memory memory;
 } LM_VM;
 
 void frame_init(LM_FrameStack *frame);

@@ -21,7 +21,7 @@ void stack_push(LM_Stack *stack, const LM_Value value) {
             stack->capacity *= 2;
         }
         LM_Value* new_values = realloc(stack->values, stack->capacity * sizeof(*stack->values));
-        if (new_values == NULL) raise_stack_overflow();
+        // if (new_values == NULL) raise_stack_overflow();
         stack->values = new_values;
     }
     stack->values[stack->length++] = value;

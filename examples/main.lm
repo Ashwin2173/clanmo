@@ -1,5 +1,9 @@
 function main() {
-    print("Enter input: ");
-    print("your input is ", input());
+    print(print_hello());
     return;
+}
+
+function print_hello() {
+    print("Hello");
+    return "Hello - return value";
 }

@@ -35,6 +35,8 @@ LM_Value *parse_symbols(FILE *file, Program *program) {
     for (uint16_t i = 0; i < symbol_count; i++) {
         const uint8_t format = next_byte(file);
         if (format == LM_INTEGER) {
+            const uint32_t size = next_int4(file);
+            if (size != 4) Fault(INIT_FAULT, "Invalid int size");
             symbols[i] = make_int(next_int4(file));
         } else if (format == LM_STRING) {
             LM_String *s = malloc(sizeof(*s));

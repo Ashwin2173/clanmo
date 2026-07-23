@@ -18,4 +18,6 @@ add_executable(clanmo main.c
         include/vm.c
         src/parser.c
         include/program.c
+        include/memory.h
+        include/memory.c
 )

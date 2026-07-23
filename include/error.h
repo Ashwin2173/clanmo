@@ -9,6 +9,7 @@ enum FaultType {
     CORE_FAULT,
     STACK_OVERFLOW,
     STACK_UNDERFLOW,
+    OFF_MEMORY
 };
 
 [[noreturn]]
