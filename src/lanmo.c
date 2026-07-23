@@ -93,8 +93,7 @@ void op_call(LM_VM *vm, const LM_OpCode opcode) {
 void op_ret(LM_VM *vm){
     const LM_Value value = stack_pop(&vm->stack);
     const LM_Frame frame = frame_pop(&vm->frames);
-    stack_pop_n(&vm->stack, frame.base_ptr);
-    stack_pop(&vm->stack);
-    stack_push(&vm->stack, value);
+    vm->stack.length = frame.base_ptr;
     vm->memory.length = frame.mem_ptr;
+    stack_push(&vm->stack, value);
 }
