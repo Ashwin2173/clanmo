@@ -79,7 +79,9 @@ void op_load(LM_VM *vm, const LM_Frame *frame, const LM_OpCode op_code) {
 }
 
 void op_call(LM_VM *vm, const LM_OpCode opcode) {
-    const LM_Function* fn = stack_peek_n(&vm->stack, opcode.value).as.function;
+    const LM_Value value = stack_peek_n(&vm->stack, opcode.value);
+    if (value.type != LM_FUNCTION) Fault(NON_CALLABLE, "Invoking non callable");
+    const LM_Function *fn = value.as.function;
     if (fn->is_native) {
         LM_Value *args = &vm->stack.values[vm->stack.length - opcode.value];
         const LM_Value value = fn->native_function(opcode.value, args);
