@@ -53,7 +53,7 @@ typedef struct {
 } LM_OpCode;
 
 struct LM_Value;
-typedef struct LM_Value (*NativeFunction)(int argc, struct LM_Value *args);
+typedef struct LM_Value (*NativeFunction)(size_t argc, struct LM_Value *args);
 
 typedef struct {
     char *name;

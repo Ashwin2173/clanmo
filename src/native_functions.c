@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <windows.h>
 
 #include "../include/value.h"
 
@@ -53,4 +54,10 @@ LM_Value native_input(const size_t argc, LM_Value* argv) {
     s->string = malloc(s->length + 1);
     strcpy(s->string, input);
     return make_string(s);
+}
+
+LM_Value native_now(const size_t argc, LM_Value* argv) {
+    (void) argc; (void) argv;
+    const int64_t ms = GetTickCount();
+    return make_int(ms);
 }
