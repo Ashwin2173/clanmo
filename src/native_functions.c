@@ -15,13 +15,22 @@ LM_Value native_print(const size_t argc, const LM_Value* argv) {
             case LM_STRING:
                 printf("%s", value.as.string->string);
                 break;
-            case LM_FUNCTION:
+            case LM_FUNCTION: {
                 const LM_Function *function = value.as.function;
                 if (function->is_native)
                     printf("<native_function(%s) at %p>", function->name, (void*) function);
                 else
                     printf("<function(%s) at %p>", function->name, (void*) function);
                 break;
+            }
+            case LM_BOOLEAN: {
+                const bool boolean = value.as.boolean;
+                if (boolean)
+                    printf("true");
+                else
+                    printf("false");
+                break;
+            }
             case LM_NONE:
                 printf("null");
                 break;
@@ -33,6 +42,7 @@ LM_Value native_print(const size_t argc, const LM_Value* argv) {
 }
 
 LM_Value native_input(const size_t argc, LM_Value* argv) {
+    native_print(argc, argv);
     char input[1024];
     if (fgets(input, sizeof(input), stdin) == NULL) {
         return make_none();

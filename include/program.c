@@ -16,8 +16,9 @@ void program_gc(Program *program) {
                 free(value->as.function->body);
                 free(value->as.function);
                 break;
-            case LM_INTEGER:
             case LM_NONE:
+            case LM_BOOLEAN:
+            case LM_INTEGER:
                 break;
             default:
                 fprintf(stderr,"\n[WARN] Unhandled symbol garbage collection type: %d", value->type);

@@ -56,6 +56,9 @@ LM_Value *parse_symbols(FILE *file, Program *program) {
             fn->body = NULL;
             load_native_function(fn);
             symbols[i] = make_function(fn);
+        } else if (format == LM_BOOLEAN) {
+            const bool value = next_byte(file);
+            symbols[i] = make_boolean(value);
         } else if (format == LM_NONE) {
             symbols[i] = make_none();
         } else {

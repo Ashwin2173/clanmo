@@ -10,7 +10,8 @@ enum FaultType {
     STACK_OVERFLOW,
     STACK_UNDERFLOW,
     OFF_MEMORY,
-    NON_CALLABLE
+    NON_CALLABLE,
+    TYPE_ERROR
 };
 
 [[noreturn]]

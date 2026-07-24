@@ -1,5 +1,8 @@
 function main() {
-    print(print);
-    print(main);
-    return 0;
+    if (false) {
+        print("Hello");
+    } else {
+        print("Not hello");
+    }
+    return;
 }

@@ -37,6 +37,11 @@ enum LM_OPCode {
     OP_SET_FIELD     = 19
 };
 
+enum LM_BIN_TYPE {
+    BIN_OP_ADD = 1,
+    BIN_OP_LTN = 11
+};
+
 typedef struct {
     uint64_t length;
     char *string;
@@ -99,6 +104,13 @@ static LM_Value make_string(LM_String *s) {
     return (LM_Value) {
         .type = LM_STRING,
         .as.string = s
+    };
+}
+
+static LM_Value make_boolean(const bool b) {
+    return (LM_Value) {
+        .type = LM_BOOLEAN,
+        .as.boolean = b
     };
 }
 
