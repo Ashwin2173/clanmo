@@ -58,6 +58,14 @@ LM_Value native_input(const size_t argc, LM_Value* argv) {
 
 LM_Value native_now(const size_t argc, LM_Value* argv) {
     (void) argc; (void) argv;
-    const int64_t ms = GetTickCount();
-    return make_int(ms);
+    static LARGE_INTEGER freq;
+    static int init = 0;
+    if (!init) {
+        QueryPerformanceFrequency(&freq);
+        init = 1;
+    }
+    LARGE_INTEGER counter;
+    QueryPerformanceCounter(&counter);
+    const int64_t us = (counter.QuadPart * 1000000LL) / freq.QuadPart;
+    return make_int(us);
 }

@@ -6,13 +6,13 @@
 #include "../include/parser.h"
 #include "../include/program.h"
 
-void op_ret (LM_VM *vm);
-void op_bin(LM_VM *vm, LM_OpCode op_code);
-void op_call(LM_VM *vm, LM_OpCode opcode);
-void op_store(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
-void op_load(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
-void op_jump(LM_Frame *frame, LM_OpCode op_code);
-void op_jump_if_false(LM_VM *vm, LM_Frame *frame, LM_OpCode op_code);
+inline void op_ret (LM_VM *vm);
+inline void op_bin(LM_VM *vm, LM_OpCode op_code);
+inline void op_call(LM_VM *vm, LM_OpCode opcode);
+inline void op_store(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
+inline void op_load(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
+inline void op_jump(LM_Frame *frame, LM_OpCode op_code);
+inline void op_jump_if_false(LM_VM *vm, LM_Frame *frame, LM_OpCode op_code);
 
 void load_main(LM_VM *vm, const Program *program);
 void call_function(LM_VM *vm, size_t args);
