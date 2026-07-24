@@ -11,7 +11,7 @@ LM_Value native_print(const size_t argc, const LM_Value* argv) {
         LM_Value value = argv[i];
         switch (value.type) {
             case LM_INTEGER:
-                printf("%"PRIu64, value.as.integer);
+                printf("%"PRId64, value.as.integer);
                 break;
             case LM_STRING:
                 printf("%s", value.as.string->string);

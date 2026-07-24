@@ -72,17 +72,20 @@ void load_main(LM_VM *vm, const Program *program) {
 }
 
 void op_bin(LM_VM *vm, const LM_OpCode op_code) {
+    LM_Value *left = &vm->stack.values[vm->stack.length - 2];
+    const LM_Value *right = &vm->stack.values[vm->stack.length - 1];
     switch (op_code.value) {
         case BIN_OP_ADD: {
-            LM_Value *left = &vm->stack.values[vm->stack.length - 2];
-            const LM_Value *right = &vm->stack.values[vm->stack.length - 1];
             left->as.integer += right->as.integer;
             vm->stack.length--;
             break;
         }
+        case BIN_OP_SUB: {
+            left->as.integer -= right->as.integer;
+            vm->stack.length--;
+            break;
+        }
         case BIN_OP_LTN: {
-            LM_Value *left = &vm->stack.values[vm->stack.length - 2];
-            const LM_Value *right = &vm->stack.values[vm->stack.length - 1];
             left->as.boolean = left->as.integer < right->as.integer;
             left->type = LM_BOOLEAN;
             vm->stack.length--;

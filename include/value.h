@@ -39,6 +39,7 @@ enum LM_OPCode {
 
 enum LM_BIN_TYPE {
     BIN_OP_ADD = 1,
+    BIN_OP_SUB = 2,
     BIN_OP_LTN = 11
 };
 
