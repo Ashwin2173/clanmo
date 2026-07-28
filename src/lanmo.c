@@ -72,27 +72,26 @@ void load_main(LM_VM *vm, const Program *program) {
 }
 
 void op_bin(LM_VM *vm, const LM_OpCode op_code) {
+    if (vm->stack.length < 2) Fault(STACK_UNDERFLOW, "Stack overflow");
     LM_Value *left = &vm->stack.values[vm->stack.length - 2];
     const LM_Value *right = &vm->stack.values[vm->stack.length - 1];
     switch (op_code.value) {
         case BIN_OP_ADD: {
             left->as.integer += right->as.integer;
-            vm->stack.length--;
             break;
         }
         case BIN_OP_SUB: {
             left->as.integer -= right->as.integer;
-            vm->stack.length--;
             break;
         }
         case BIN_OP_LTN: {
             left->as.boolean = left->as.integer < right->as.integer;
             left->type = LM_BOOLEAN;
-            vm->stack.length--;
             break;
         }
         default: printf("%d", op_code.value); Fault(CORE_FAULT, "Unhandled Bin OpCode");
     }
+    vm->stack.length--;
 }
 
 void op_jump(LM_Frame *frame, const LM_OpCode op_code) {
@@ -125,9 +124,9 @@ void op_call(LM_VM *vm, const LM_OpCode opcode) {
     const LM_Function *fn = value.as.function;
     if (fn->is_native) {
         LM_Value *args = &vm->stack.values[vm->stack.length - opcode.value];
-        const LM_Value value = fn->native_function(opcode.value, args);
+        const LM_Value ret_value = fn->native_function(opcode.value, args);
         stack_pop_n(&vm->stack, opcode.value + 1);
-        stack_push(&vm->stack, value);
+        stack_push(&vm->stack, ret_value);
         return;
     }
     call_function(vm, opcode.value);

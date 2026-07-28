@@ -1,8 +1,8 @@
 #ifndef CLANMO_VALUE_H
 #define CLANMO_VALUE_H
 
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 enum LM_DataType {
     LM_INTEGER = 1,
@@ -21,11 +21,11 @@ enum LM_OPCode {
     OP_BIN           = 3,
     OP_WRITE         = 4,
     OP_CALL          = 5,
-    OP_HALT          = 6,
+    OP_HALT          = 6,   // ignore
     OP_RET           = 7,
     OP_JUMP          = 8,
     OP_JUMP_IF_FALSE = 9,
-    OP_DUP           = 10,
+    OP_DUP           = 10,  // ignore
     OP_STORE         = 11,
     OP_LOAD          = 12,
     OP_MAKE_LIST     = 13,
@@ -40,7 +40,17 @@ enum LM_OPCode {
 enum LM_BIN_TYPE {
     BIN_OP_ADD = 1,
     BIN_OP_SUB = 2,
-    BIN_OP_LTN = 11
+    BIN_OP_MUL = 3,
+    BIN_OP_DIV = 4,
+    BIN_OP_MOD = 5,
+    BIN_OP_EEQ = 6,
+    BIN_OP_NEQ = 7,
+    BIN_OP_GEQ = 8,
+    BIN_OP_GTN = 9,
+    BIN_OP_LEQ = 10,
+    BIN_OP_LTN = 11,
+    BIN_OP_AND = 12,
+    BIN_OP_OR  = 13,
 };
 
 typedef struct {
