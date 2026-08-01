@@ -1,4 +1,7 @@
 function main() {
-    print("Hello, World");
-    return;
+    print(
+         1 != 1 and 2 == 2,
+         1 != 1 or 2 == 2
+    );
+    return 0;
 }

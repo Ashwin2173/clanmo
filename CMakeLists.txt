@@ -20,4 +20,6 @@ add_executable(clanmo main.c
         include/program.c
         include/memory.h
         include/memory.c
+        include/arithmetic.c
+        include/arithmetic.h
 )

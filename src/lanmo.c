@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../include/arithmetic.h"
 #include "../include/vm.h"
 #include "../include/value.h"
 #include "../include/parser.h"
@@ -72,25 +73,15 @@ void load_main(LM_VM *vm, const Program *program) {
 }
 
 void op_bin(LM_VM *vm, const LM_OpCode op_code) {
-    if (vm->stack.length < 2) Fault(STACK_UNDERFLOW, "Stack overflow");
+    if (vm->stack.length < 2) {
+        Fault(STACK_UNDERFLOW, "Stack overflow");
+    }
     LM_Value *left = &vm->stack.values[vm->stack.length - 2];
     const LM_Value *right = &vm->stack.values[vm->stack.length - 1];
-    switch (op_code.value) {
-        case BIN_OP_ADD: {
-            left->as.integer += right->as.integer;
-            break;
-        }
-        case BIN_OP_SUB: {
-            left->as.integer -= right->as.integer;
-            break;
-        }
-        case BIN_OP_LTN: {
-            left->as.boolean = left->as.integer < right->as.integer;
-            left->type = LM_BOOLEAN;
-            break;
-        }
-        default: printf("%d", op_code.value); Fault(CORE_FAULT, "Unhandled Bin OpCode");
+    if (op_code.value > 0 && op_code.value > OP_COUNT) {
+        Fault(CORE_FAULT, "invalid bin op value");
     }
+    binop_dispatch_table[op_code.value - 1](left, right);
     vm->stack.length--;
 }
 
