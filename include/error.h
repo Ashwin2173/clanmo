@@ -11,7 +11,8 @@ enum FaultType {
     STACK_UNDERFLOW,
     OFF_MEMORY,
     NON_CALLABLE,
-    TYPE_ERROR
+    TYPE_ERROR,
+    NULL_POINTER_EXCEPTION
 };
 
 [[noreturn]]
