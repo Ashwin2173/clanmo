@@ -12,7 +12,8 @@ enum FaultType {
     OFF_MEMORY,
     NON_CALLABLE,
     TYPE_ERROR,
-    NULL_POINTER_EXCEPTION
+    NULL_POINTER_EXCEPTION,
+    DIVIDE_BY_ZERO
 };
 
 [[noreturn]]

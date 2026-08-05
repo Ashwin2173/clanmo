@@ -107,6 +107,10 @@ void op_mul(LM_Value *left, const LM_Value *right) {
 
 void op_div(LM_Value *left, const LM_Value *right) {
    BIN_NPE_CHECK(left, right);
+   if (right->type == LM_INTEGER && right->as.integer == 0 ||
+       right->type == LM_FLOAT && right->as.floating == 0) {
+      Fault(DIVIDE_BY_ZERO, "Divide by zero");
+   }
    BIN_NUMERIC_OP(left, right, /);
 }
 
