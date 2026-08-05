@@ -1,4 +1,6 @@
 #include <math.h>
+#include <inttypes.h>
+#include <string.h>
 
 #include "vm.h"
 #include "error.h"
@@ -49,8 +51,47 @@
      (left)->as.boolean = ((left)->as.boolean OP (right)->as.boolean);          \
      (left)->type = LM_BOOLEAN;                                                 \
 
+char* to_string(const LM_Value *value) {
+   char buffer[64];
+   switch (value->type) {
+   case LM_STRING:
+      return strdup(value->as.string->string);
+   case LM_INTEGER:
+      snprintf(buffer, sizeof(buffer), "%" PRId64, value->as.integer);
+      return strdup(buffer);
+   case LM_FLOAT:
+      snprintf(buffer, sizeof(buffer), "%g", value->as.floating);
+      return strdup(buffer);
+   case LM_BOOLEAN:
+      return strdup(value->as.boolean ? "true" : "false");
+   case LM_NONE:
+      return strdup("null");
+   case LM_FUNCTION:
+      return strdup("<function>");
+   default:
+      Fault(CORE_FAULT, "Unsupported value in to_string()");
+   }
+}
+
 void op_add(LM_Value *left, const LM_Value *right) {
    BIN_NPE_CHECK(left, right);
+   if (left->type == LM_STRING || right->type == LM_STRING) {
+      char* lhs = to_string(left);
+      char* rhs = to_string(right);
+      const size_t lhs_len = strlen(lhs);
+      const size_t rhs_len = strlen(rhs);
+      LM_String *str = malloc(sizeof(*str));
+      str->length = lhs_len + rhs_len;
+      str->string = malloc(str->length + 1);
+      memcpy(str->string, lhs, lhs_len);
+      memcpy(str->string + lhs_len, rhs, rhs_len);
+      str->string[str->length] = '\0';
+      free(lhs);
+      free(rhs);
+      left->type = LM_STRING;
+      left->as.string = str;
+      return;
+   }
    BIN_NUMERIC_OP(left, right, +);
 }
 
@@ -83,21 +124,32 @@ void op_mod(LM_Value *left, const LM_Value *right) {
 }
 
 void op_eeq(LM_Value *left, const LM_Value *right) {
+   bool result = false;
    if (left->type == LM_NONE || right->type == LM_NONE) {
-      left->as.boolean = left->type == right->type;
-      left->type = LM_BOOLEAN;
-      return;
+      result = (left->type == right->type);
+   } else if ((left->type == LM_INTEGER || left->type == LM_FLOAT) &&
+            (right->type == LM_INTEGER || right->type == LM_FLOAT)) {
+      const double lhs = left->type == LM_FLOAT
+          ? left->as.floating
+          : (double)left->as.integer;
+      const double rhs = right->type == LM_FLOAT
+          ? right->as.floating
+          : (double)right->as.integer;
+      result = lhs == rhs;
+   } else if (left->type == LM_BOOLEAN && right->type == LM_BOOLEAN) {
+      result = left->as.boolean == right->as.boolean;
+   } else if (left->type == LM_STRING && right->type == LM_STRING) {
+      result = strcmp(left->as.string->string, right->as.string->string) == 0;
+   } else {
+      result = false;
    }
-   BIN_COMPARE_OP(left, right, ==);
+   left->as.boolean = result;
+   left->type = LM_BOOLEAN;
 }
 
 void op_neq(LM_Value *left, const LM_Value *right) {
-   if (left->type == LM_NONE || right->type == LM_NONE) {
-      left->as.boolean = left->type != right->type;
-      left->type = LM_BOOLEAN;
-      return;
-   }
-   BIN_COMPARE_OP(left, right, !=);
+   op_eeq(left, right);
+   left->as.boolean = !left->as.boolean;
 }
 
 void op_geq(LM_Value *left, const LM_Value *right) {

@@ -1,5 +1,4 @@
 function main() {
-    var name = null;
-    print(name != null);
+    print("string" != null);
     return 0;
 }
