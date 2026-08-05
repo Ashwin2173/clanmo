@@ -126,7 +126,7 @@ void op_mod(LM_Value *left, const LM_Value *right) {
 void op_eeq(LM_Value *left, const LM_Value *right) {
    bool result = false;
    if (left->type == LM_NONE || right->type == LM_NONE) {
-      result = (left->type == right->type);
+      result = left->type == right->type;
    } else if ((left->type == LM_INTEGER || left->type == LM_FLOAT) &&
             (right->type == LM_INTEGER || right->type == LM_FLOAT)) {
       const double lhs = left->type == LM_FLOAT
