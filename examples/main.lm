@@ -1,5 +1,4 @@
 function main() {
-    print("Enter input: ");
-    print("Your input is ", input());
-    return;
+    print(1 / 0);
+    return 0;
 }

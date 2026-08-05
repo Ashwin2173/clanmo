@@ -9,10 +9,16 @@ enum FaultType {
     CORE_FAULT,
     STACK_OVERFLOW,
     STACK_UNDERFLOW,
+    OFF_MEMORY,
+    NON_CALLABLE,
+    TYPE_ERROR,
+    NULL_POINTER_EXCEPTION,
+    DIVIDE_BY_ZERO
 };
 
+[[noreturn]]
 static void Fault(const enum FaultType ft, char *message) {
-    fprintf(stderr, "Faulted with error code %d:\n%s\n", ft, message);
+    fprintf(stderr, "\nFaulted with error code %d:\n%s\n", ft, message);
     exit(EXIT_FAILURE);
 }
 

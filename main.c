@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utils/vm.h"
+#include "src/lanmo.h"
 
 void print_usage() {
     printf("USAGE:\n");

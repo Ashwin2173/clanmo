@@ -1,22 +1,23 @@
 #ifndef CLANMO_PARSER_H
 #define CLANMO_PARSER_H
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "vm.h"
 #include "error.h"
+#include "program.h"
 
-VM *load_byte_code(FILE *file);
+Program *parse_byte_code(FILE *file);
 
-static void next_bytes(FILE *fp, void *buffer, const size_t size) {
+static inline void next_bytes(FILE *fp, void *buffer, const size_t size) {
     if (fread(buffer, 1, size, fp) != size) {
         Fault(INIT_FAULT, "Unexpected end of file");
     }
 }
 
 static uint8_t next_byte(FILE *fp) {
-    char value;
+    uint8_t value = 0;
     next_bytes(fp, &value, sizeof(char));
     return value;
 }
@@ -28,7 +29,7 @@ static uint16_t next_int2(FILE *fp) {
 }
 
 static uint32_t next_int4(FILE *fp) {
-    long value = 0;
+    uint32_t value = 0;
     next_bytes(fp, &value, sizeof(uint32_t));
     return value;
 }
@@ -47,7 +48,7 @@ static char *next_str(FILE *fp, const size_t size) {
         Fault(INIT_FAULT, "Out of memory");
     }
     next_bytes(fp, str, size);
-    str[size] = '\0';
+    if (str != NULL) str[size] = '\0';
     return str;
 }
 
