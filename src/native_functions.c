@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <windows.h>
 
+#include "../include/list.h"
 #include "../include/value.h"
 
 LM_Value native_print(const size_t argc, const LM_Value* argv) {
@@ -22,6 +23,18 @@ LM_Value native_print(const size_t argc, const LM_Value* argv) {
                     printf("<native_function(%s) at %p>", function->name, (void*) function);
                 else
                     printf("<function(%s) at %p>", function->name, (void*) function);
+                break;
+            }
+            case LM_LIST: {
+                const LM_List *list = value.as.list;
+                printf("[");
+                for (size_t item = 0; item < list->length; ++item) {
+                    native_print(1, &list->values[item]);
+                    if (item != list->length - 1) {
+                        printf(", ");
+                    }
+                }
+                printf("]");
                 break;
             }
             case LM_BOOLEAN: {

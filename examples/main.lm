@@ -1,4 +1,5 @@
 function main() {
-    print(1 / 0);
+    var list = [1, 2, 3, [1, 2, 3, true, null]];
+    print(list);
     return 0;
 }
