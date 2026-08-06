@@ -11,6 +11,7 @@
 inline void op_ret (LM_VM *vm);
 inline void op_bin(LM_VM *vm, LM_OpCode op_code);
 inline void op_call(LM_VM *vm, LM_OpCode opcode);
+inline void op_get_index(LM_VM *vm, LM_OpCode op_code);
 inline void op_make_list(LM_VM *vm, LM_OpCode op_code);
 inline void op_store(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
 inline void op_load(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
@@ -45,6 +46,7 @@ void vm_run(FILE *file) {
             case OP_CALL: op_call(&vm, inst); break;
             case OP_RET : op_ret(&vm); break;
             case OP_MAKE_LIST: op_make_list(&vm, inst); break;
+            case OP_GET_INDEX: op_get_index(&vm, inst); break;
             case OP_JUMP: op_jump(frame, inst); break;
             case OP_JUMP_IF_FALSE: op_jump_if_false(&vm, frame, inst); break;
             default:
@@ -76,9 +78,7 @@ void load_main(LM_VM *vm, const Program *program) {
 }
 
 void op_bin(LM_VM *vm, const LM_OpCode op_code) {
-    if (vm->stack.length < 2) {
-        Fault(STACK_UNDERFLOW, "Stack overflow");
-    }
+    check_underflow(&vm->stack, 2);
     LM_Value *left = &vm->stack.values[vm->stack.length - 2];
     const LM_Value *right = &vm->stack.values[vm->stack.length - 1];
     if (op_code.value > 0 && op_code.value > OP_COUNT) {
@@ -99,6 +99,19 @@ void op_make_list(LM_VM *vm, const LM_OpCode op_code) {
     memcpy(list->values, &vm->stack.values[vm->stack.length - cap], size);
     vm->stack.values[vm->stack.length - cap] = make_list(list);
     vm->stack.length = vm->stack.length - cap + 1;
+}
+
+void op_get_index(LM_VM *vm, const LM_OpCode op_code) {
+    check_underflow(&vm->stack, 2);
+    const LM_Value value = stack_peek_n(&vm->stack, 1);
+    const LM_Value index = stack_peek(&vm->stack);
+    if (index.type != LM_INTEGER) Fault(TYPE_ERROR, "required integer for index");
+    if (value.type == LM_LIST) {
+        vm->stack.values[vm->stack.length - 2] = get_index(value.as.list, index.as.integer);
+        vm->stack.length -= 1;
+    } else {
+        Fault(TYPE_ERROR, "unsubscriptable type");
+    }
 }
 
 void op_jump(LM_Frame *frame, const LM_OpCode op_code) {
