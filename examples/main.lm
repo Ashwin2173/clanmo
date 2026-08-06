@@ -1,5 +1,5 @@
 function main() {
     var list = [1, 2, 3, [1, 2, 3, true, null]];
-    print(list);
+    print("length: ", len(list));
     return 0;
 }
