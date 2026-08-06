@@ -4,7 +4,7 @@
 
 LM_Value get_index(const LM_List *list, const int64_t index) {
     const size_t length = list->length;
-    if (index >= -length && index < length) {
+    if (-length >= index && index < length) {
         if (index < 0) {
             return list->values[list->length + index];
         }
