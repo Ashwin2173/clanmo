@@ -56,6 +56,11 @@ enum LM_BIN_TYPE {
     BIN_OP_OR  = 13,
 };
 
+enum LM_UN_TYPE {
+    UNARY_MINUS = 1,
+    UNARY_BANG  = 2
+};
+
 struct LM_Value;
 typedef struct LM_List LM_List;
 typedef struct LM_Value (*NativeFunction)(size_t argc, struct LM_Value *args);

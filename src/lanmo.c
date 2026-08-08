@@ -11,6 +11,7 @@
 
 inline void op_ret (LM_VM *vm);
 inline void op_bin(LM_VM *vm, LM_OpCode op_code);
+inline void op_unary(const LM_VM *vm, LM_OpCode op_code);
 inline void op_call(LM_VM *vm, LM_OpCode opcode);
 inline void op_get_index(LM_VM *vm);
 inline void op_set_index(LM_VM *vm);
@@ -42,6 +43,7 @@ void vm_run(FILE *file) {
                 stack_push(&vm.stack, program->symbol_table[inst.value]);
                 break;
             case OP_BIN: op_bin(&vm, inst); break;
+            case OP_UNARY: op_unary(&vm, inst); break;
             case OP_POP: stack_pop(&vm.stack); break;
             case OP_STORE: op_store(&vm, frame, inst); break;
             case OP_LOAD: op_load(&vm, frame, inst); break;
@@ -89,6 +91,12 @@ void op_bin(LM_VM *vm, const LM_OpCode op_code) {
     }
     binop_dispatch_table[op_code.value - 1](left, right);
     vm->stack.length--;
+}
+
+void op_unary(const LM_VM *vm, const LM_OpCode op_code) {
+    check_underflow(&vm->stack, 1);
+    LM_Value *value = &vm->stack.values[vm->stack.length - 1];
+    unop_dispatch_table[op_code.value - 1](value);
 }
 
 void op_make_list(LM_VM *vm, const LM_OpCode op_code) {

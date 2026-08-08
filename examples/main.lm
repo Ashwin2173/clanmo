@@ -1,6 +1,4 @@
 function main() {
-    var list = [1, 2, 3, 4];
-    list[0] = "Ashwin";
-    print([1, 2][0] = "Ashwin");
+    print(not false);
     return 0;
 }
