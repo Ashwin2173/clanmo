@@ -108,10 +108,12 @@ void op_get_index(LM_VM *vm, const LM_OpCode op_code) {
     if (index.type != LM_INTEGER) Fault(TYPE_ERROR, "required integer for index");
     if (value.type == LM_LIST) {
         vm->stack.values[vm->stack.length - 2] = get_index(value.as.list, index.as.integer);
-        vm->stack.length -= 1;
-    } else {
+    } else if (value.type == LM_STRING) {
+        vm->stack.values[vm->stack.length - 2] = get_str_index(value.as.string, index.as.integer);
+    }else {
         Fault(TYPE_ERROR, "unsubscriptable type");
     }
+    vm->stack.length -= 1;
 }
 
 void op_jump(LM_Frame *frame, const LM_OpCode op_code) {

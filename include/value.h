@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "error.h"
 #include "types.h"
 
 static LM_Value make_none(void) {
@@ -36,6 +37,25 @@ static LM_Value make_string(LM_String *s) {
         .type = LM_STRING,
         .as.string = s
     };
+}
+
+static LM_Value get_str_index(const LM_String *s, const int64_t index) {
+    const int64_t length = (int64_t) s->length;
+    if (index >= -length && index < length) {
+        int64_t real_index = index;
+        if (real_index < 0) {
+            real_index += length;
+        }
+        char ch[] = {s->string[real_index], '\0'};
+        LM_String *str = malloc(sizeof(*str));
+        if (str == NULL) {
+            Fault(CORE_FAULT, "out of memory");
+        }
+        str->length = 1;
+        str->string = ch;
+        return make_string(str);
+    }
+    Fault(INDEX_OUT_OF_RANGE, "string index out of range");
 }
 
 static LM_Value make_boolean(const bool b) {
