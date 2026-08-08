@@ -10,6 +10,7 @@ typedef struct LM_List {
 } LM_List;
 
 LM_Value get_index(const LM_List *list, int64_t index);
+void set_index(const LM_List *list, const size_t index, const LM_Value value);
 // void set_index(LM_List *list, size_t index, LM_Value value);
 // void list_append(LM_List *list, LM_Value value);
 // void list_gc(LM_List *list);
