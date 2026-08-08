@@ -28,7 +28,10 @@ void load_native_function(LM_Function *function) {
     } else if (strcmp(fn_name, "now") == 0) {
         function->is_native = true;
         function->native_function = native_now;
-    } else {
+    } else if (strcmp(fn_name, "len") == 0) {
+        function->is_native = true;
+        function->native_function = native_len;
+    }else {
         Fault(INIT_FAULT, "Unknown built-in function");
     }
 }

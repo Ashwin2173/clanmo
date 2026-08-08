@@ -4,6 +4,8 @@
 #include <inttypes.h>
 #include <windows.h>
 
+#include "../include/error.h"
+#include "../include/list.h"
 #include "../include/value.h"
 
 LM_Value native_print(const size_t argc, const LM_Value* argv) {
@@ -22,6 +24,18 @@ LM_Value native_print(const size_t argc, const LM_Value* argv) {
                     printf("<native_function(%s) at %p>", function->name, (void*) function);
                 else
                     printf("<function(%s) at %p>", function->name, (void*) function);
+                break;
+            }
+            case LM_LIST: {
+                const LM_List *list = value.as.list;
+                printf("[");
+                for (size_t item = 0; item < list->length; ++item) {
+                    native_print(1, &list->values[item]);
+                    if (item != list->length - 1) {
+                        printf(", ");
+                    }
+                }
+                printf("]");
                 break;
             }
             case LM_BOOLEAN: {
@@ -68,4 +82,17 @@ LM_Value native_now(const size_t argc, LM_Value* argv) {
     QueryPerformanceCounter(&counter);
     const int64_t us = (counter.QuadPart * 1000000LL) / freq.QuadPart;
     return make_int(us);
+}
+
+LM_Value native_len(const size_t argc, LM_Value* argv) {
+    if (argc == 1) {
+        if (argv[0].type == LM_LIST) {
+            return make_int((int64_t) argv[0].as.list->length);
+        }
+        if (argv[0].type == LM_STRING) {
+            return make_int((int64_t) argv[0].as.string->length);
+        }
+        Fault(TYPE_ERROR, "Invalid type for len()");
+    }
+    return make_int(0);
 }

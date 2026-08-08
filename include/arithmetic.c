@@ -5,6 +5,11 @@
 #include "vm.h"
 #include "error.h"
 
+#define UN_NPE_CHECK(value)                                                     \
+   if (value->type == LM_NONE) {                                                \
+      Fault(NULL_POINTER_EXCEPTION, "Null pointer exception");                  \
+   }                                                                            \
+
 #define BIN_NPE_CHECK(left, right)                                              \
    if (left->type == LM_NONE || right->type == LM_NONE) {                       \
       Fault(NULL_POINTER_EXCEPTION, "Null pointer exception");                  \
@@ -183,4 +188,24 @@ void op_and(LM_Value *left, const LM_Value *right) {
 void op_or(LM_Value *left, const LM_Value *right) {
    BIN_NPE_CHECK(left, right);
    BIN_BOOL_OP(left, right, ||);
+}
+
+void op_minus(LM_Value *value) {
+   UN_NPE_CHECK(value);
+   if (value->type == LM_INTEGER) {
+      value->as.integer = -value->as.integer;
+   } else if (value->type == LM_FLOAT) {
+      value->as.floating = -value->as.floating;
+   } else {
+      Fault(TYPE_ERROR, "unsupported operand types for unary -");
+   }
+}
+
+void op_bang(LM_Value *value) {
+   UN_NPE_CHECK(value);
+   if (value->type == LM_BOOLEAN) {
+      value->as.boolean = !value->as.boolean;
+   } else {
+      Fault(TYPE_ERROR, "unsupported operand types for unary !");
+   }
 }

@@ -13,7 +13,8 @@ enum FaultType {
     NON_CALLABLE,
     TYPE_ERROR,
     NULL_POINTER_EXCEPTION,
-    DIVIDE_BY_ZERO
+    DIVIDE_BY_ZERO,
+    INDEX_OUT_OF_RANGE
 };
 
 [[noreturn]]

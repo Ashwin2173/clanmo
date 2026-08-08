@@ -1,15 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "../include/arithmetic.h"
+#include "native_functions.h"
 #include "../include/vm.h"
-#include "../include/value.h"
+#include "../include/list.h"
 #include "../include/parser.h"
 #include "../include/program.h"
+#include "../include/arithmetic.h"
 
 inline void op_ret (LM_VM *vm);
 inline void op_bin(LM_VM *vm, LM_OpCode op_code);
+inline void op_unary(const LM_VM *vm, LM_OpCode op_code);
 inline void op_call(LM_VM *vm, LM_OpCode opcode);
+inline void op_get_index(LM_VM *vm);
+inline void op_set_index(LM_VM *vm);
+inline void op_make_list(LM_VM *vm, LM_OpCode op_code);
 inline void op_store(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
 inline void op_load(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
 inline void op_jump(LM_Frame *frame, LM_OpCode op_code);
@@ -37,11 +43,15 @@ void vm_run(FILE *file) {
                 stack_push(&vm.stack, program->symbol_table[inst.value]);
                 break;
             case OP_BIN: op_bin(&vm, inst); break;
+            case OP_UNARY: op_unary(&vm, inst); break;
             case OP_POP: stack_pop(&vm.stack); break;
             case OP_STORE: op_store(&vm, frame, inst); break;
             case OP_LOAD: op_load(&vm, frame, inst); break;
             case OP_CALL: op_call(&vm, inst); break;
             case OP_RET : op_ret(&vm); break;
+            case OP_MAKE_LIST: op_make_list(&vm, inst); break;
+            case OP_GET_INDEX: op_get_index(&vm); break;
+            case OP_SET_INDEX: op_set_index(&vm); break;
             case OP_JUMP: op_jump(frame, inst); break;
             case OP_JUMP_IF_FALSE: op_jump_if_false(&vm, frame, inst); break;
             default:
@@ -73,9 +83,7 @@ void load_main(LM_VM *vm, const Program *program) {
 }
 
 void op_bin(LM_VM *vm, const LM_OpCode op_code) {
-    if (vm->stack.length < 2) {
-        Fault(STACK_UNDERFLOW, "Stack overflow");
-    }
+    check_underflow(&vm->stack, 2);
     LM_Value *left = &vm->stack.values[vm->stack.length - 2];
     const LM_Value *right = &vm->stack.values[vm->stack.length - 1];
     if (op_code.value > 0 && op_code.value > OP_COUNT) {
@@ -83,6 +91,54 @@ void op_bin(LM_VM *vm, const LM_OpCode op_code) {
     }
     binop_dispatch_table[op_code.value - 1](left, right);
     vm->stack.length--;
+}
+
+void op_unary(const LM_VM *vm, const LM_OpCode op_code) {
+    check_underflow(&vm->stack, 1);
+    LM_Value *value = &vm->stack.values[vm->stack.length - 1];
+    unop_dispatch_table[op_code.value - 1](value);
+}
+
+void op_make_list(LM_VM *vm, const LM_OpCode op_code) {
+    check_underflow(&vm->stack, op_code.value);
+    LM_List *list = malloc(sizeof(*list));
+    const size_t cap = op_code.value;
+    const size_t size = sizeof(LM_Value) * cap;
+    list->length = cap;
+    list->capacity = cap;
+    list->values = malloc(size);
+    memcpy(list->values, &vm->stack.values[vm->stack.length - cap], size);
+    vm->stack.values[vm->stack.length - cap] = make_list(list);
+    vm->stack.length = vm->stack.length - cap + 1;
+}
+
+void op_get_index(LM_VM *vm) {
+    check_underflow(&vm->stack, 2);
+    const LM_Value value = stack_peek_n(&vm->stack, 1);
+    const LM_Value index = stack_peek(&vm->stack);
+    if (index.type != LM_INTEGER) Fault(TYPE_ERROR, "required integer for index");
+    if (value.type == LM_LIST) {
+        vm->stack.values[vm->stack.length - 2] = get_index(value.as.list, index.as.integer);
+    } else if (value.type == LM_STRING) {
+        vm->stack.values[vm->stack.length - 2] = get_str_index(value.as.string, index.as.integer);
+    }else {
+        Fault(TYPE_ERROR, "unsubscriptable type");
+    }
+    vm->stack.length -= 1;
+}
+
+void op_set_index(LM_VM *vm) {
+    check_underflow(&vm->stack, 3);
+    const LM_Value index = stack_pop(&vm->stack);
+    if (index.type != LM_INTEGER) {
+        Fault(TYPE_ERROR, "required integer for index");
+    }
+    const LM_Value value = stack_pop(&vm->stack);
+    const LM_Value list = stack_peek(&vm->stack);
+    if (list.type != LM_LIST) {
+        Fault(TYPE_ERROR, "required list for set index");
+    }
+    set_index(list.as.list, index.as.integer, value);
 }
 
 void op_jump(LM_Frame *frame, const LM_OpCode op_code) {

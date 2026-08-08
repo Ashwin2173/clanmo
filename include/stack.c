@@ -47,6 +47,12 @@ LM_Value stack_pop(LM_Stack *stack) {
     return stack->values[--stack->length];
 }
 
+inline void check_underflow(const LM_Stack *stack, const size_t count) {
+    if (stack->length < count) {
+        raise_stack_underflow();
+    }
+}
+
 void stack_gc(LM_Stack *stack) {
     free(stack->values);
     stack->values = NULL;
