@@ -73,6 +73,8 @@ char* to_string(const LM_Value *value) {
       return strdup("null");
    case LM_FUNCTION:
       return strdup("<function>");
+   case LM_OBJECT:
+      return strdup("<object>");
    default:
       Fault(CORE_FAULT, "Unsupported value in to_string()");
    }

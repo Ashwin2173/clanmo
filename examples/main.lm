@@ -4,9 +4,16 @@ struct Point {
 
 function main() {
     var p = Point {
-        x = 1,
-        y = 1
+        x = Point {
+            x = 1,
+            y = 2
+        },
+        y = 3
     };
-    print(p.x, " ", p.y);
+    print(str_point(p));
     return 0;
+}
+
+function str_point(p) {
+    return "point { x=" + p.x + ", y=" + p.y + " }";
 }
