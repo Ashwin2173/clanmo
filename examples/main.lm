@@ -1,5 +1,12 @@
+struct Point {
+    x, y
+}
+
 function main() {
-    var list = [0, 1, 2, 3];
-    print(list[-len(list)]);
-    return;
+    var p = Point {
+        x = 1,
+        y = 1
+    };
+    print(p.x, " ", p.y);
+    return 0;
 }
