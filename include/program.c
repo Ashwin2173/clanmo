@@ -11,6 +11,10 @@ void program_gc(Program *program) {
                 free(value->as.string->string);
                 free(value->as.string);
                 break;
+            case LM_MEMBER:
+                free(value->as.member->name);
+                free(value->as.member);
+                break;
             case LM_FUNCTION:
                 free(value->as.function->name);
                 free(value->as.function->body);
