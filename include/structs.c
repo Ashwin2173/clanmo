@@ -2,6 +2,8 @@
 
 #include "structs.h"
 
+#include "error.h"
+
 void init_struct(LM_Struct *new, const size_t size) {
     new->length = size;
     new->members = calloc(size, sizeof(LM_Index));
@@ -23,8 +25,12 @@ void add_member(const LM_Struct *s, const size_t m_id, const size_t value) {
 
 size_t get_member(const LM_Struct *s, const size_t m_id) {
     size_t hash_index = hash(s, m_id);
+    const size_t og_index = hash_index;
     while (s->members[hash_index].key != m_id) {
         hash_index = (hash_index + 1) % s->length;
+        if (hash_index == og_index) {
+            Fault(ATTRIBUTE_ERROR, "Object doesn't have member %s");
+        }
     }
     return s->members[hash_index].value;
 }
