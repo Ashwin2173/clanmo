@@ -96,3 +96,11 @@ LM_Value native_len(const size_t argc, LM_Value* argv) {
     }
     return make_int(0);
 }
+
+LM_Value native_append(const size_t argc, LM_Value* argv) {
+    if (argc != 2 || argv[0].type != LM_LIST) {
+        Fault(TYPE_ERROR, "Invalid arg count for append()");
+    }
+    list_append(argv[0].as.list, argv[1]);
+    return make_none();
+}

@@ -7,5 +7,6 @@ LM_Value native_print(size_t argc, LM_Value* args);
 LM_Value native_input(size_t argc, LM_Value* args);
 LM_Value native_now(size_t argc, LM_Value* args);
 LM_Value native_len(size_t argc, LM_Value* args);
+LM_Value native_append(size_t argc, LM_Value* args);
 
 #endif
