@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "native_functions.h"
 #include "../include/vm.h"
 #include "../include/list.h"
 #include "../include/parser.h"
@@ -20,6 +19,9 @@ inline void op_store(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
 inline void op_load(LM_VM *vm, const LM_Frame *frame, LM_OpCode op_code);
 inline void op_jump(LM_Frame *frame, LM_OpCode op_code);
 inline void op_jump_if_false(LM_VM *vm, LM_Frame *frame, LM_OpCode op_code);
+inline void op_new_obj(LM_VM *vm, LM_Struct *structs, LM_OpCode opcode);
+inline void op_get_field(LM_VM *vm, LM_OpCode opcode);
+inline void op_set_field(LM_VM *vm, LM_OpCode opcode);
 
 void load_main(LM_VM *vm, const Program *program);
 void call_function(LM_VM *vm, size_t args);
@@ -33,6 +35,7 @@ void init_vm(LM_VM *vm, const Program *program) {
 
 void vm_run(FILE *file) {
     Program *program = parse_byte_code(file);
+    LM_Struct *struct_lookup = program->struct_lookup;
     LM_VM vm;
     init_vm(&vm, program);
     while (vm.frames.length != 0) {
@@ -54,6 +57,9 @@ void vm_run(FILE *file) {
             case OP_SET_INDEX: op_set_index(&vm); break;
             case OP_JUMP: op_jump(frame, inst); break;
             case OP_JUMP_IF_FALSE: op_jump_if_false(&vm, frame, inst); break;
+            case OP_NEW_OBJ: op_new_obj(&vm, struct_lookup, inst); break;
+            case OP_GET_FIELD: op_get_field(&vm, inst); break;
+            case OP_SET_FIELD: op_set_field(&vm, inst); break;
             default:
                 printf("%d", inst.op_code);
                 Fault(CORE_FAULT, "Unhandled OpCode");
@@ -151,6 +157,39 @@ void op_jump_if_false(LM_VM *vm, LM_Frame *frame, const LM_OpCode op_code) {
     if (!value.as.boolean) {
         frame->inst_ptr = op_code.value;
     }
+}
+
+void op_new_obj(LM_VM *vm, LM_Struct *structs, const LM_OpCode opcode) {
+    LM_Object *obj = malloc(sizeof(*obj));
+    obj->definition = &structs[opcode.value];
+    obj->data = malloc(sizeof(LM_Object) * obj->definition->length);
+    // todo: fix this; too much time
+    for (size_t i = 0; i < obj->definition->length; i++) {
+        obj->data[i].type = LM_NONE;
+    }
+    stack_push(&vm->stack, make_Object(obj));
+}
+
+void op_set_field(LM_VM *vm, const LM_OpCode opcode) {
+    check_underflow(&vm->stack, 2);
+    const LM_Value value = stack_pop(&vm->stack);
+    const LM_Value *object = &vm->stack.values[vm->stack.length - 1];
+    if (object->type != LM_OBJECT) {
+        Fault(TYPE_ERROR, "required Object for set field");
+    }
+    const LM_Struct *s = object->as.object->definition;
+    const size_t member_offset = get_member(s, opcode.value);
+    object->as.object->data[member_offset] = value;
+}
+
+void op_get_field(LM_VM *vm, const LM_OpCode opcode) {
+    check_underflow(&vm->stack, 1);
+    const LM_Value object = stack_pop(&vm->stack);
+    if (object.type != LM_OBJECT) {
+        Fault(TYPE_ERROR, "required Object for get field");
+    }
+    const size_t member_offset = get_member(object.as.object->definition, opcode.value);
+    stack_push(&vm->stack, object.as.object->data[member_offset]);
 }
 
 void op_store(LM_VM *vm, const LM_Frame *frame, const LM_OpCode op_code) {

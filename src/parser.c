@@ -31,7 +31,10 @@ void load_native_function(LM_Function *function) {
     } else if (strcmp(fn_name, "len") == 0) {
         function->is_native = true;
         function->native_function = native_len;
-    }else {
+    } else if (strcmp(fn_name, "append") == 0) {
+        function->is_native = true;
+        function->native_function = native_append;
+    } else {
         Fault(INIT_FAULT, "Unknown built-in function");
     }
 }
@@ -49,8 +52,12 @@ LM_Value *parse_symbols(FILE *file, Program *program) {
         } else if (format == LM_STRING) {
             LM_String *s = malloc(sizeof(*s));
             s->length = next_int4(file);
-            s->string = next_str(file, s -> length);
+            s->string = next_str(file, s->length);
             symbols[i] = make_string(s);
+        } else if (format == LM_MEMBER) {
+            LM_Member *member = malloc(sizeof(*member));
+            member->name = next_str(file, next_int4(file));
+            symbols[i] = make_member(member);
         } else if (format == LM_FUNCTION) {
             LM_Function *fn = malloc(sizeof(*fn));
             fn->name = next_str(file, next_int4(file));
@@ -77,11 +84,18 @@ LM_Value *parse_symbols(FILE *file, Program *program) {
     return symbols;
 }
 
-void parse_struct(FILE *file) {
+LM_Struct *parse_struct(FILE *file) {
     const uint16_t struct_count = next_int2(file);
-    if (struct_count != 0) {
-        Fault(INIT_FAULT, "Struct not supported yet");
+    LM_Struct *s = malloc(sizeof(*s) * struct_count);
+    for (size_t i = 0; i < struct_count; i++) {
+        const size_t m_size = next_byte(file);
+        init_struct(&s[0], m_size);
+        for (size_t j = 0; j < m_size; j++) {
+            const size_t offset = next_int2(file);
+            add_member(&s[0], offset, j);
+        }
     }
+    return s;
 }
 
 LM_OpCode *parse_function_body(FILE *file) {
@@ -113,7 +127,7 @@ Program *parse_byte_code(FILE *file) {
     validate_header(file);
     program->entry_point = -1;
     program->symbol_table = parse_symbols(file, program);
-    parse_struct(file);
+    program->struct_lookup = parse_struct(file);
     parse_functions(file, program->symbol_table);
     return program;
 }

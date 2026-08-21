@@ -7,7 +7,7 @@
 enum LM_DataType {
     LM_INTEGER = 1,
     LM_STRING = 2,
-    LM_IDENTIFIER = 3,
+    LM_MEMBER = 3,
     LM_FUNCTION = 4,
     LM_NONE = 5,
     LM_BOOLEAN = 6,
@@ -15,7 +15,8 @@ enum LM_DataType {
     LM_FLOAT = 8,
 
     // the following are dataType not symbolType
-    LM_LIST = 9
+    LM_LIST = 9,
+    LM_OBJECT = 10
 };
 
 enum LM_OPCode {
@@ -63,12 +64,17 @@ enum LM_UN_TYPE {
 
 struct LM_Value;
 typedef struct LM_List LM_List;
+typedef struct LM_Object LM_Object;
 typedef struct LM_Value (*NativeFunction)(size_t argc, struct LM_Value *args);
 
 typedef struct {
     uint64_t length;
     char *string;
 } LM_String;
+
+typedef struct {
+    char *name;
+} LM_Member;
 
 typedef struct {
     enum LM_OPCode op_code;
@@ -87,11 +93,13 @@ typedef struct {
 typedef struct LM_Value {
     enum LM_DataType type;
     union {
-        int64_t integer;
-        double floating;
-        LM_String *string;
         bool boolean;
+        double floating;
+        int64_t integer;
         LM_List *list;
+        LM_String *string;
+        LM_Member *member;
+        LM_Object *object;
         LM_Function *function;
     } as;
 } LM_Value;

@@ -1,5 +1,21 @@
+struct Console {
+    log, in
+}
+
 function main() {
-    var list = [0, 1, 2, 3];
-    print(list[-len(list)]);
+    var console = get_console();
+    console.log("Hello, World");
+    return;
+}
+
+function get_console() {
+    return Console {
+        log = log,
+        in = input
+    };
+}
+
+function log(message) {
+    print("[INFO] ", message);
     return;
 }

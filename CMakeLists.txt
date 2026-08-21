@@ -25,4 +25,6 @@ add_executable(clanmo main.c
         include/list.c
         include/list.h
         include/types.h
+        include/structs.c
+        include/structs.h
 )

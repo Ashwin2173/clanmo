@@ -39,6 +39,20 @@ static LM_Value make_string(LM_String *s) {
     };
 }
 
+static LM_Value make_member(LM_Member *m) {
+    return (LM_Value) {
+        .type = LM_MEMBER,
+        .as.member = m
+    };
+}
+
+static LM_Value make_Object(LM_Object *o) {
+    return (LM_Value) {
+        .type = LM_OBJECT,
+        .as.object = o
+    };
+}
+
 static LM_Value get_str_index(const LM_String *s, const int64_t index) {
     const int64_t length = (int64_t) s->length;
     if (index >= -length && index < length) {
