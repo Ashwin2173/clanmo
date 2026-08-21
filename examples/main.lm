@@ -1,19 +1,21 @@
-struct Point {
-    x, y
+struct Console {
+    log, in
 }
 
 function main() {
-    var p = Point {
-        x = Point {
-            x = 1,
-            y = 2
-        },
-        y = 3
-    };
-    print(str_point(p));
-    return 0;
+    var console = get_console();
+    console.log("Hello, World");
+    return;
 }
 
-function str_point(p) {
-    return "point { x=" + p.x + ", y=" + p.y + " }";
+function get_console() {
+    return Console {
+        log = log,
+        in = input
+    };
+}
+
+function log(message) {
+    print("[INFO] ", message);
+    return;
 }
